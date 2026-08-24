@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="snowflake-source" content="cortex-agent-authored">
+  <title>AI Portfolio Visibility</title>
+  <script type="application/json" id="snowflake-report-metadata">
+  {
+    "generated": "2026-08-20",
+    "intent": "Standalone browser app replicating the AI Portfolio Visibility mockup",
+    "dataSources": [
+      {
+        "type": "inline-data",
+        "name": "Mock portfolio metrics",
+        "producerNotes": "All charts and tables are rendered from embedded JavaScript objects. No external data source is required."
+      }
+    ],
+    "sections": [
+      {
+        "id": "app-shell",
+        "title": "AI Portfolio Visibility dashboard",
+        "dataSources": [
+          {
+            "type": "inline-data",
+            "name": "Portfolio dashboard mock data"
+          }
+        ],
+        "producerNotes": "This file converts the supplied React mockup into plain HTML, CSS, and JavaScript for local browser execution."
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --toyota-red: #eb0a1e;
+      --ink: #111827;
+      --ink-soft: #374151;
+      --muted: #6b7280;
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --line: #e5e7eb;
+      --green: #15803d;
+      --amber: #d97706;
+      --blue: #2563eb;
+      --purple: #7c3aed;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #f9fafb;
+        --ink-soft: #e5e7eb;
+        --muted: #9ca3af;
+        --bg: #0f1115;
+        --card: #171a21;
+        --line: #2a2f3a;
+        --shadow: none;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+    }
+
+    body {
+      min-width: 320px;
+    }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--card) 94%, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-main,
+    .topbar-tabs,
+    .content {
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .topbar-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px clamp(16px, 3vw, 28px);
+    }
+
+    .brand-group,
+    .header-actions,
+    .brand-meta,
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--toyota-red);
+      color: #fff;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--line);
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    .page-title {
+      font-size: clamp(15px, 2vw, 17px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .mini-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .mini-value {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .header-actions {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .icon-btn,
+    .dark-btn,
+    .subtle-btn,
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .icon-btn,
+    .subtle-btn {
+      border-radius: 10px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark-btn,
+    .subtle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .dark-btn {
+      background: var(--ink);
+      color: var(--card);
+      border-color: var(--ink);
+    }
+
+    .icon-btn:hover,
+    .subtle-btn:hover,
+    .tab-btn:hover {
+      background: color-mix(in srgb, var(--toyota-red) 6%, var(--card));
+    }
+
+    .dark-btn:hover {
+      opacity: 0.92;
+    }
+
+    .topbar-tabs {
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+      padding: 0 clamp(16px, 3vw, 28px);
+      scrollbar-width: thin;
+    }
+
+    .tab-btn {
+      border: 0;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn.active {
+      color: var(--toyota-red);
+      border-bottom-color: var(--toyota-red);
+    }
+
+    .content {
+      padding: clamp(16px, 2vw, 24px);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .section-title h2 {
+      font-size: clamp(24px, 4vw, 32px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 950;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .helper-text {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      color: var(--ink);
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--toyota-red);
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap input {
+      padding-left: 38px;
+    }
+
+    .search-wrap .icon {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      color: var(--muted);
+    }
+
+    .card-grid-6,
+    .card-grid-4,
+    .card-grid-3,
+    .card-grid-2,
+    .card-grid-12 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card-grid-6 {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .card-grid-4 {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .card-grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card-grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+
+    .card-grid-12 {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .span-8 { grid-column: span 8; }
+    .span-4 { grid-column: span 4; }
+
+    @media (max-width: 1180px) {
+      .span-8,
+      .span-4 {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-body,
+    .card-title,
+    .table-wrap,
+    .alert-list,
+    .progress-list,
+    .mini-stack {
+      padding: 16px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 0;
+    }
+
+    .card-title h3 {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .card-subtitle {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(235, 10, 30, 0.08);
+      color: var(--toyota-red);
+      white-space: nowrap;
+    }
+
+    .kpi {
+      padding: 16px;
+      min-height: 148px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .kpi-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tone-red { background: rgba(235, 10, 30, 0.1); color: var(--toyota-red); }
+    .tone-green { background: rgba(21, 128, 61, 0.12); color: var(--green); }
+    .tone-blue { background: rgba(37, 99, 235, 0.12); color: var(--blue); }
+    .tone-amber { background: rgba(217, 119, 6, 0.12); color: var(--amber); }
+    .tone-purple { background: rgba(124, 58, 237, 0.12); color: var(--purple); }
+
+    .trend-pill {
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .trend-positive { background: rgba(21, 128, 61, 0.12); color: var(--green); }
+    .trend-negative { background: rgba(235, 10, 30, 0.12); color: var(--toyota-red); }
+
+    .kpi-label {
+      margin-top: 18px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .kpi-value {
+      margin-top: 4px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .kpi-detail {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: clamp(280px, 42vw, 360px);
+      padding: 4px 0 0;
+    }
+
+    .chart-box.small {
+      height: clamp(220px, 34vw, 300px);
+    }
+
+    .chart-box.pie {
+      height: 260px;
+    }
+
+    .chart-box > canvas,
+    .chart-box > svg {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.7fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .legend-list {
+      display: grid;
+      gap: 12px;
+      align-content: center;
+    }
+
+    .legend-item {
+      display: grid;
+      gap: 4px;
+    }
+
+    .legend-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-soft);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .legend-value {
+      padding-left: 18px;
+      font-size: 24px;
+      font-weight: 950;
+      letter-spacing: -0.03em;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 640px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: color-mix(in srgb, var(--toyota-red) 3%, transparent);
+    }
+
+    .rank {
+      color: var(--toyota-red);
+      font-weight: 900;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .strong {
+      font-weight: 800;
+    }
+
+    .green-text { color: var(--green); }
+    .amber-text { color: var(--amber); }
+    .red-text { color: var(--toyota-red); }
+    .blue-text { color: var(--blue); }
+
+    .alert-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .alert-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .alert-item .kpi-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+    }
+
+    .alert-title {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .alert-copy {
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .progress-item {
+      display: grid;
+      gap: 8px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--ink) 8%, transparent);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    .metric-mini {
+      padding: 18px;
+    }
+
+    .metric-mini .value {
+      margin-top: 10px;
+      font-size: 32px;
+      font-weight: 950;
+      letter-spacing: -0.05em;
+    }
+
+    .metric-mini .delta {
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.green { background: rgba(21, 128, 61, 0.12); color: var(--green); }
+    .badge.amber { background: rgba(217, 119, 6, 0.12); color: var(--amber); }
+    .badge.red { background: rgba(235, 10, 30, 0.12); color: var(--toyota-red); }
+    .badge.purple { background: rgba(124, 58, 237, 0.12); color: var(--purple); }
+
+    .outline-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px 20px;
+    }
+
+    .icon {
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <header class="topbar">
+      <div class="topbar-main">
+        <div class="brand-group">
+          <div class="brand-badge">TME</div>
+          <div class="brand-divider"></div>
+          <div>
+            <h1 class="page-title">AI Portfolio Visibility</h1>
+            <p class="eyebrow">Unified cost, adoption, performance, value and sustainability</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="header-meta">
+            <div>
+              <div class="mini-label">Last refresh</div>
+              <div class="mini-value" id="updated-label">20 Aug 2026, 14:00</div>
+            </div>
+          </div>
+          <button class="icon-btn" id="refresh-button" type="button" aria-label="Refresh timestamp">
+            <span class="icon" data-icon="refresh"></span>
+          </button>
+          <button class="dark-btn" id="export-button" type="button">
+            <span class="icon" data-icon="download"></span>
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+      <nav class="topbar-tabs" id="tab-nav" aria-label="Dashboard sections"></nav>
+    </header>
+
+    <main class="content">
+      <section class="section-header">
+        <div>
+          <div class="section-title">
+            <h2 id="section-title">Executive Overview</h2>
+            <span class="pill">Mock data</span>
+          </div>
+          <p class="helper-text">Management view for LPP AI, ML and data product consumption</p>
+        </div>
+        <button class="subtle-btn" id="toggle-filters" type="button">
+          <span class="icon" data-icon="filter"></span>
+          <span id="toggle-filters-label">Hide filters</span>
+        </button>
+      </section>
+
+      <section class="filter-bar" id="filter-bar">
+        <div class="field">
+          <label for="period-filter">Reporting period</label>
+          <select id="period-filter"></select>
+        </div>
+        <div class="field">
+          <label for="platform-filter">Platform</label>
+          <select id="platform-filter"></select>
+        </div>
+        <div class="field">
+          <label for="team-filter">Team / Squad</label>
+          <select id="team-filter"></select>
+        </div>
+        <div class="field">
+          <label for="env-filter">Environment</label>
+          <select id="env-filter"></select>
+        </div>
+        <div class="field search-wrap">
+          <label for="search-filter">Search use case</label>
+          <span class="icon" data-icon="search"></span>
+          <input id="search-filter" type="text" placeholder="Search...">
+        </div>
+        <div class="field" style="justify-content:flex-end;">
+          <label>&nbsp;</label>
+          <button class="subtle-btn" id="reset-filters" type="button">
+            <span class="icon" data-icon="x"></span>
+            <span>Reset</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="dashboard-content"></section>
+
+      <footer class="footer">
+        <span>Concept dashboard for requirement alignment. All data is illustrative.</span>
+        <span>Proposed consolidation: source systems -&gt; Snowflake semantic layer -&gt; governed Power BI reporting</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const C = {
+      red: "#EB0A1E",
+      dark: "#1F2937",
+      grey: "#6B7280",
+      light: "#F4F5F7",
+      green: "#15803D",
+      amber: "#D97706",
+      blue: "#2563EB",
+      purple: "#7C3AED"
+    };
+
+    const baseMonthly = [
+      { month: "Sep", spend: 136, budget: 148, forecast: 140, co2: 3.7, requests: 7.8, users: 1890 },
+      { month: "Oct", spend: 143, budget: 152, forecast: 147, co2: 3.9, requests: 8.3, users: 2010 },
+      { month: "Nov", spend: 151, budget: 156, forecast: 154, co2: 4.1, requests: 8.9, users: 2140 },
+      { month: "Dec", spend: 139, budget: 157, forecast: 143, co2: 3.8, requests: 8.0, users: 2075 },
+      { month: "Jan", spend: 158, budget: 160, forecast: 161, co2: 4.3, requests: 9.6, users: 2290 },
+      { month: "Feb", spend: 166, budget: 163, forecast: 169, co2: 4.6, requests: 10.2, users: 2415 },
+      { month: "Mar", spend: 174, budget: 167, forecast: 177, co2: 4.9, requests: 11.1, users: 2540 },
+      { month: "Apr", spend: 181, budget: 171, forecast: 184, co2: 5.1, requests: 11.8, users: 2680 },
+      { month: "May", spend: 187, budget: 175, forecast: 191, co2: 5.3, requests: 12.5, users: 2790 },
+      { month: "Jun", spend: 196, budget: 180, forecast: 201, co2: 5.6, requests: 13.4, users: 2910 },
+      { month: "Jul", spend: 204, budget: 184, forecast: 210, co2: 5.8, requests: 14.2, users: 3070 },
+      { month: "Aug", spend: 213, budget: 188, forecast: 219, co2: 6.1, requests: 15.0, users: 3220 }
+    ];
+
+    const tools = [
+      { name: "Microsoft 365 Copilot", platform: "Copilot", owner: "Katarzina", status: "Live", spend: 816, budget: 850, users: 3120, requests: 38.4, tokens: 9.6, co2: 14.8, latency: 940, errors: 0.7, adoption: 68, roi: 1180, color: C.red },
+      { name: "Snowflake AI & ML", platform: "Snowflake", owner: "Sampath", status: "Live", spend: 642, budget: 610, users: 945, requests: 27.8, tokens: 14.2, co2: 18.6, latency: 1280, errors: 1.2, adoption: 54, roi: 910, color: C.blue },
+      { name: "Kong LLM Gateway", platform: "Kong", owner: "AICC", status: "Pilot", spend: 286, budget: 330, users: 620, requests: 21.6, tokens: 11.5, co2: 9.1, latency: 790, errors: 1.8, adoption: 37, roi: 402, color: C.purple },
+      { name: "Azure OpenAI", platform: "Azure AI", owner: "AICC", status: "Live", spend: 221, budget: 240, users: 410, requests: 18.2, tokens: 8.8, co2: 7.4, latency: 1060, errors: 1.5, adoption: 43, roi: 355, color: C.amber }
+    ];
+
+    const useCases = [
+      { rank: 1, name: "Engineering Assistant", product: "Dev Productivity", team: "Digital Engineering", tool: "Microsoft 365 Copilot", spend: 318, users: 810, requests: 14.1, co2: 7.8, value: 525, time: 8200 },
+      { rank: 2, name: "Customer Insight Summarization", product: "Customer 360", team: "Customer & Retail", tool: "Snowflake AI & ML", spend: 274, users: 285, requests: 9.8, co2: 8.4, value: 438, time: 4100 },
+      { rank: 3, name: "Meeting & Email Productivity", product: "M365 Copilot", team: "Corporate Functions", tool: "Microsoft 365 Copilot", spend: 247, users: 1320, requests: 12.7, co2: 5.2, value: 396, time: 12700 },
+      { rank: 4, name: "Quality Knowledge Assistant", product: "Quality AI", team: "Manufacturing", tool: "Kong LLM Gateway", spend: 226, users: 390, requests: 8.9, co2: 6.6, value: 341, time: 3800 },
+      { rank: 5, name: "Warranty Claim Classification", product: "Warranty Analytics", team: "After Sales", tool: "Snowflake AI & ML", spend: 207, users: 170, requests: 7.4, co2: 7.1, value: 362, time: 2950 },
+      { rank: 6, name: "Data Product Documentation", product: "Data Marketplace", team: "Data & AI", tool: "Azure OpenAI", spend: 183, users: 260, requests: 6.2, co2: 4.1, value: 304, time: 3300 }
+    ];
+
+    const teams = [
+      { name: "Digital Engineering", spend: 464, users: 1105, adoption: 73, co2: 11.8, budget: 450 },
+      { name: "Customer & Retail", spend: 382, users: 710, adoption: 62, co2: 10.4, budget: 390 },
+      { name: "Manufacturing", spend: 351, users: 645, adoption: 57, co2: 12.1, budget: 330 },
+      { name: "Corporate Functions", spend: 319, users: 1510, adoption: 71, co2: 8.2, budget: 350 },
+      { name: "After Sales", spend: 267, users: 490, adoption: 49, co2: 9.0, budget: 280 },
+      { name: "Data & AI", spend: 182, users: 635, adoption: 78, co2: 7.5, budget: 180 }
+    ];
+
+    const dataSources = [
+      { source: "MS Copilot Chat & M365", owner: "Katarzina", status: "Connected", freshness: "2h ago", coverage: 92, records: "38.4M", gap: "CO2e is estimated" },
+      { source: "Snowflake", owner: "Sampath", status: "Connected", freshness: "35m ago", coverage: 96, records: "27.8M", gap: "User mapping 94%" },
+      { source: "Kong Gateway", owner: "AICC", status: "Pilot feed", freshness: "6h ago", coverage: 61, records: "21.6M", gap: "Migration dependency" },
+      { source: "Finance / Cost Centers", owner: "Finance D&A", status: "Connected", freshness: "1d ago", coverage: 98, records: "4.6K", gap: "Monthly allocation" }
+    ];
+
+    const tabs = [
+      { name: "Executive Overview", icon: "barChart" },
+      { name: "Cost & Value", icon: "dollar" },
+      { name: "Adoption & Usage", icon: "users" },
+      { name: "Performance", icon: "gauge" },
+      { name: "Sustainability", icon: "leaf" },
+      { name: "Data Coverage", icon: "database" }
+    ];
+
+    const iconPaths = {
+      refresh: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>',
+      download: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>',
+      filter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>',
+      search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+      x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+      barChart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 13v5"/><path d="M12 8v10"/><path d="M17 5v13"/></svg>',
+      dollar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="M17 7.5c0-1.93-2.24-3.5-5-3.5S7 5.57 7 7.5 9.24 11 12 11s5 1.57 5 3.5S14.76 18 12 18s-5-1.57-5-3.5"/></svg>',
+      users: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      gauge: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14 16 10"/><path d="M20.42 15a8 8 0 1 0-16.84 0"/><path d="M6 18h.01"/><path d="M18 18h.01"/><path d="M12 18h.01"/></svg>',
+      leaf: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 20A7 7 0 0 1 4 13C4 7 11 4 20 4c0 9-3 16-9 16Z"/><path d="M11 20c-1-6 2-11 9-16"/></svg>',
+      database: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>',
+      activity: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+      trendUp: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 9 11l4 4 8-8"/><path d="M14 7h7v7"/></svg>',
+      trendDown: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 6 6 4-4 8 8"/><path d="M21 10v7h-7"/></svg>',
+      sparkles: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8Z"/><path d="M5 19l.9 2 .9-2 2-.9-2-.9L5 15l-.9 2-2 .9 2 .9Z"/><path d="M19 15l1.2 2.8L23 19l-2.8 1.2L19 23l-1.2-2.8L15 19l2.8-1.2Z"/></svg>',
+      alert: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+      cloud: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 1 0-.9-8.91A6 6 0 1 0 6 17h11.5Z"/><path d="M12 12v6"/><path d="m9.5 15 2.5 3 2.5-3"/></svg>',
+      settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>',
+      server: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01"/><path d="M7 17h.01"/></svg>',
+      bot: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4"/><path d="M9 2h6"/><path d="M8 12h.01"/><path d="M16 12h.01"/><path d="M9 16h6"/></svg>'
+    };
+
+    const state = {
+      tab: "Executive Overview",
+      period: "FY26 YTD",
+      platform: "All platforms",
+      team: "All teams",
+      env: "All environments",
+      filtersVisible: true,
+      updated: "20 Aug 2026, 14:00",
+      search: ""
+    };
+
+    const chartRegistry = [];
+
+    function fmtMoney(v) {
+      return "EUR " + (v >= 1000 ? (v / 1000).toFixed(2) + "M" : v.toFixed(0) + "K");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isPositiveTrend(text) {
+      return text && (text.startsWith("+") || text.indexOf("under") > -1 || text.indexOf("-") > -1 && text.indexOf("CO") > -1);
+    }
+
+    function icon(name) {
+      return '<span class="icon">' + (iconPaths[name] || '') + '</span>';
+    }
+
+    function badgeTone(status) {
+      if (status === "Connected" || status === "Healthy") return "green";
+      if (status === "Pilot feed" || status === "Watch") return "purple";
+      if (status === "Action") return "red";
+      return "amber";
+    }
+
+    function kpiCard(item) {
+      const trendClass = item.trend ? (isPositiveTrend(item.trend) ? "trend-positive" : "trend-negative") : "";
+      return [
+        '<article class="card kpi">',
+        '<div class="kpi-top">',
+        '<span class="kpi-icon tone-' + item.tone + '">' + icon(item.icon) + '</span>',
+        item.trend ? '<span class="trend-pill ' + trendClass + '">' + escapeHtml(item.trend) + '</span>' : '',
+        '</div>',
+        '<div class="kpi-label">' + escapeHtml(item.title) + '</div>',
+        '<div class="kpi-value">' + escapeHtml(item.value) + '</div>',
+        '<div class="kpi-detail">' + escapeHtml(item.detail) + '</div>',
+        '</article>'
+      ].join('');
+    }
+
+    function cardTitle(title, subtitle, tag) {
+      return [
+        '<div class="card-title">',
+        '<div>',
+        '<h3>' + escapeHtml(title) + '</h3>',
+        subtitle ? '<div class="card-subtitle">' + escapeHtml(subtitle) + '</div>' : '',
+        '</div>',
+        tag ? '<span class="tag">' + escapeHtml(tag) + '</span>' : '',
+        '</div>'
+      ].join('');
+    }
+
+    function chartCard(title, subtitle, canvasId, sizeClass, spanClass, tag) {
+      return [
+        '<section class="card ' + (spanClass || '') + '">',
+        cardTitle(title, subtitle, tag),
+        '<div class="card-body">',
+        '<div class="chart-box ' + (sizeClass || '') + '"><canvas id="' + canvasId + '"></canvas></div>',
+        '</div>',
+        '</section>'
+      ].join('');
+    }
+
+    function pieLegendCard(title, subtitle) {
+      return [
+        '<section class="card span-4">',
+        cardTitle(title, subtitle),
+        '<div class="card-body split">',
+        '<div class="chart-box pie"><canvas id="platform-spend-pie"></canvas></div>',
+        '<div class="legend-list" id="platform-spend-legend"></div>',
+        '</div>',
+        '</section>'
+      ].join('');
+    }
+
+    function alertCard() {
+      const alerts = [
+        { title: "Forecast above budget", detail: "FY26 forecast is EUR 171K above approved budget.", tone: "red", icon: "alert" },
+        { title: "Manufacturing overspend", detail: "EUR 21K above team budget, driven by Quality AI.", tone: "amber", icon: "trendUp" },
+        { title: "Kong data coverage", detail: "61% coverage until remaining tools migrate.", tone: "purple", icon: "cloud" },
+        { title: "Copilot adoption", detail: "32% of licensed users inactive this month.", tone: "blue", icon: "users" }
+      ];
+      return [
+        '<section class="card span-4">',
+        cardTitle("Management Attention", "Exceptions requiring decision or action"),
+        '<div class="alert-list">',
+        alerts.map(function (item) {
+          return [
+            '<article class="alert-item">',
+            '<span class="kpi-icon tone-' + item.tone + '">' + icon(item.icon) + '</span>',
+            '<div><div class="alert-title">' + escapeHtml(item.title) + '</div><div class="alert-copy">' + escapeHtml(item.detail) + '</div></div>',
+            '</article>'
+          ].join('');
+        }).join(''),
+        '</div>',
+        '</section>'
+      ].join('');
+    }
+
+    function executiveMarkup() {
+      const kpis = [
+        { title: "Total AI Spend", value: "EUR 1.97M", detail: "FY26 year to date", trend: "+8.4%", icon: "dollar", tone: "red" },
+        { title: "Annual Forecast", value: "EUR 2.42M", detail: "EUR 2.25M approved budget", trend: "+7.6%", icon: "trendUp", tone: "amber" },
+        { title: "Monthly Active Users", value: "4,487", detail: "6,820 licensed users", trend: "+12.1%", icon: "users", tone: "blue" },
+        { title: "Total Requests", value: "106.0M", detail: "44.1B total tokens", trend: "+16.8%", icon: "activity", tone: "purple" },
+        { title: "Total CO2e", value: "49.9 t", detail: "0.47 g per request", trend: "-4.3%", icon: "leaf", tone: "green" },
+        { title: "ROI Estimate", value: "EUR 2.85M", detail: "1.45x value / cost", trend: "+EUR 884K", icon: "sparkles", tone: "green" }
+      ];
+
+      const topCases = filteredUseCases().slice(0, 5);
+
+      return [
+        '<div class="card-grid-6">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-12" style="margin-top:14px;">',
+        chartCard("Spend, Budget & Forecast", "Monthly view, values in EUR K", "executive-composed", "", "span-8", "FY26 YTD"),
+        pieLegendCard("Spend by Platform", "Allocation across reporting sources"),
+        '</div>',
+        '<div class="card-grid-12" style="margin-top:14px;">',
+        '<section class="card span-8">' + cardTitle("Top Cost Drivers", "Prioritize review based on cost, value and emissions") + '<div class="table-wrap"><table><thead><tr><th>#</th><th>Use case</th><th>Team</th><th>Spend</th><th>Value</th><th>Users</th><th>CO2e</th></tr></thead><tbody>' +
+          topCases.map(function (u) {
+            return '<tr><td class="rank">' + u.rank + '</td><td><div class="strong">' + escapeHtml(u.name) + '</div><div class="muted" style="font-size:10px;">' + escapeHtml(u.product) + '</div></td><td class="muted">' + escapeHtml(u.team) + '</td><td class="strong">' + fmtMoney(u.spend) + '</td><td class="green-text strong">' + fmtMoney(u.value) + '</td><td>' + u.users + '</td><td>' + u.co2 + ' t</td></tr>';
+          }).join('') +
+          '</tbody></table></div></section>',
+        alertCard(),
+        '</div>'
+      ].join('');
+    }
+
+    function costValueMarkup() {
+      const kpis = [
+        { title: "Actual Spend", value: "EUR 1.97M", detail: "87.4% of budget", icon: "dollar", tone: "red" },
+        { title: "Budget Variance", value: "-EUR 285K", detail: "YTD under budget", trend: "12.6% under", icon: "trendDown", tone: "green" },
+        { title: "Cost per User", value: "EUR 438", detail: "Per monthly active user", trend: "-3.7%", icon: "users", tone: "blue" },
+        { title: "Value / Cost", value: "1.45x", detail: "Estimated portfolio ROI", trend: "+0.18x", icon: "sparkles", tone: "green" }
+      ];
+      return [
+        '<div class="card-grid-4">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-2" style="margin-top:14px;">',
+        chartCard("Team Spend vs Budget", "EUR K, red indicates overspend", "team-budget-chart"),
+        chartCard("Business Value by Use Case", "Estimated ROI vs total cost, EUR K", "usecase-value-chart"),
+        '</div>',
+        '<section class="card" style="margin-top:14px;">' + cardTitle("Cost Driver Detail", "Mock data for management review and chargeback discussion") + '<div class="table-wrap"><table><thead><tr><th>Use case</th><th>Product</th><th>Team</th><th>Platform</th><th>Spend</th><th>Cost / user</th><th>Time saved</th><th>ROI</th></tr></thead><tbody>' +
+          filteredUseCases().map(function (u) {
+            return '<tr><td class="strong">' + escapeHtml(u.name) + '</td><td class="muted">' + escapeHtml(u.product) + '</td><td>' + escapeHtml(u.team) + '</td><td>' + escapeHtml(u.tool) + '</td><td class="strong">' + fmtMoney(u.spend) + '</td><td>EUR ' + Math.round((u.spend * 1000) / u.users) + '</td><td>' + u.time.toLocaleString() + ' h</td><td class="green-text strong">' + (u.value / u.spend).toFixed(2) + 'x</td></tr>';
+          }).join('') +
+          '</tbody></table></div></section>'
+      ].join('');
+    }
+
+    function adoptionMarkup() {
+      const kpis = [
+        { title: "Monthly Active Users", value: "4,487", detail: "Across all platforms", trend: "+12.1%", icon: "users", tone: "blue" },
+        { title: "Adoption Rate", value: "65.8%", detail: "Active / licensed users", trend: "+4.6pp", icon: "trendUp", tone: "green" },
+        { title: "Repeat Usage", value: "72.4%", detail: "Users active in 2+ weeks", trend: "+3.2pp", icon: "refresh", tone: "purple" },
+        { title: "Agent Executions", value: "1.82M", detail: "Including plugins and agents", trend: "+21.5%", icon: "bot", tone: "red" }
+      ];
+      const mini = [
+        { n: "Meetings summarized", v: "184K", d: "+14% vs prior period" },
+        { n: "Emails drafted", v: "612K", d: "+19% vs prior period" },
+        { n: "Documents created", v: "96K", d: "+11% vs prior period" },
+        { n: "Plugin usage", v: "428K", d: "+27% vs prior period" }
+      ];
+      return [
+        '<div class="card-grid-4">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-12" style="margin-top:14px;">',
+        chartCard("Usage & Active Users Trend", "Requests in millions and monthly active users", "adoption-usage-chart", "", "span-8"),
+        '<section class="card span-4">' + cardTitle("Adoption by Team", "Active users / licensed users") + '<div class="progress-list">' + filteredTeams().map(function (team) {
+          const tone = team.adoption >= 70 ? C.green : (team.adoption >= 55 ? C.amber : C.red);
+          return '<div class="progress-item"><div class="progress-head"><span class="strong">' + escapeHtml(team.name) + '</span><span class="strong">' + team.adoption + '%</span></div><div class="progress-bar"><div class="progress-fill" style="width:' + team.adoption + '%;background:' + tone + ';"></div></div></div>';
+        }).join('') + '</div></section>',
+        '</div>',
+        '<div class="card-grid-4" style="margin-top:14px;">',
+        mini.map(function (item) {
+          return '<article class="card metric-mini"><div class="muted strong">' + escapeHtml(item.n) + '</div><div class="value">' + escapeHtml(item.v) + '</div><div class="delta">' + escapeHtml(item.d) + '</div></article>';
+        }).join(''),
+        '</div>'
+      ].join('');
+    }
+
+    function performanceMarkup() {
+      const perf = filteredTools().map(function (t) {
+        return Object.assign({}, t, { success: 100 - t.errors, p95: Math.round(t.latency * 1.8) });
+      });
+      const kpis = [
+        { title: "Success Rate", value: "98.7%", detail: "Across 106M requests", trend: "+0.3pp", icon: "activity", tone: "green" },
+        { title: "P50 Latency", value: "820 ms", detail: "Weighted median", trend: "-7.4%", icon: "gauge", tone: "blue" },
+        { title: "P95 Latency", value: "1.92 s", detail: "Target below 2 seconds", trend: "-4.2%", icon: "trendDown", tone: "green" },
+        { title: "Throttled Requests", value: "0.42%", detail: "445K requests", trend: "+0.08pp", icon: "alert", tone: "amber" }
+      ];
+      return [
+        '<div class="card-grid-4">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-2" style="margin-top:14px;">',
+        chartCard("Latency by Platform", "Average and P95 response time in ms", "performance-latency-chart"),
+        '<section class="card">' + cardTitle("Reliability Overview", "Success rate and error rate per source") + '<div class="table-wrap"><table><thead><tr><th>Platform</th><th>Requests</th><th>Success</th><th>Error</th><th>Status</th></tr></thead><tbody>' + perf.map(function (t) {
+          const status = t.errors < 1 ? "Healthy" : (t.errors < 1.6 ? "Watch" : "Action");
+          return '<tr><td class="strong">' + escapeHtml(t.platform) + '</td><td>' + t.requests + 'M</td><td class="green-text strong">' + t.success.toFixed(1) + '%</td><td>' + t.errors + '%</td><td><span class="badge ' + badgeTone(status) + '">' + status + '</span></td></tr>';
+        }).join('') + '</tbody></table></div></section>',
+        '</div>'
+      ].join('');
+    }
+
+    function sustainabilityMarkup() {
+      const kpis = [
+        { title: "Total CO2e", value: "49.9 t", detail: "FY26 YTD estimate", trend: "-4.3%", icon: "leaf", tone: "green" },
+        { title: "CO2e / Request", value: "0.47 g", detail: "Portfolio intensity", trend: "-8.1%", icon: "trendDown", tone: "green" },
+        { title: "Energy Consumption", value: "112 MWh", detail: "Estimated compute energy", trend: "+5.8%", icon: "activity", tone: "amber" },
+        { title: "Sustainability Score", value: "73 / 100", detail: "GreenOps composite KPI", trend: "+6 pts", icon: "sparkles", tone: "green" }
+      ];
+      return [
+        '<div class="card-grid-4">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-12" style="margin-top:14px;">',
+        chartCard("Emissions & Carbon Intensity", "Monthly CO2e in tonnes; intensity in mg/request", "sustainability-chart", "", "span-8"),
+        '<section class="card span-4">' + cardTitle("CO2e by Platform", "Estimated allocation by AI service") + '<div class="mini-stack">' + filteredTools().map(function (t) {
+          const intensity = ((t.co2 * 1000) / t.requests / 1000000 * 1000).toFixed(2);
+          return '<div class="alert-item" style="grid-template-columns:1fr;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;"><div><div class="strong">' + escapeHtml(t.platform) + '</div><div class="muted" style="font-size:10px;margin-top:4px;">' + intensity + ' mg/request</div></div><div class="green-text strong" style="font-size:24px;">' + t.co2 + ' t</div></div></div>';
+        }).join('') + '</div></section>',
+        '</div>',
+        '<div class="outline-note" style="margin-top:14px;">',
+        '<span class="kpi-icon tone-amber">' + icon("alert") + '</span>',
+        '<div><div class="strong">Estimation boundary</div><div class="alert-copy">CO2e values are mock estimates. Production reporting should document the emissions factor, cloud region, energy mix, model allocation method and confidence level for every source.</div></div>',
+        '</div>'
+      ].join('');
+    }
+
+    function coverageMarkup() {
+      const kpis = [
+        { title: "Source Coverage", value: "86.8%", detail: "Weighted field completion", trend: "+9.2pp", icon: "database", tone: "blue" },
+        { title: "User ID Mapping", value: "94.1%", detail: "Mapped to organization data", trend: "+2.4pp", icon: "users", tone: "green" },
+        { title: "Data Freshness", value: "2.3 h", detail: "Weighted average delay", icon: "refresh", tone: "purple" },
+        { title: "Critical Data Gaps", value: "4", detail: "Open remediation items", trend: "-2", icon: "alert", tone: "amber" }
+      ];
+      const steps = [
+        { title: "1. Standardize", detail: "Agree canonical fields, KPI definitions and calculation ownership.", icon: "settings" },
+        { title: "2. Consolidate", detail: "Land source data in Snowflake with identity and cost-center mapping.", icon: "database" },
+        { title: "3. Govern", detail: "Apply quality controls, access rules, lineage and monthly sign-off.", icon: "server" }
+      ];
+      return [
+        '<div class="card-grid-4">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<section class="card" style="margin-top:14px;">' + cardTitle("Source Onboarding & Data Quality", "Accountability view for the unified reporting layer") + '<div class="table-wrap"><table><thead><tr><th>Source</th><th>Business owner</th><th>Connection</th><th>Freshness</th><th>Coverage</th><th>Records</th><th>Key gap</th></tr></thead><tbody>' + dataSources.map(function (s) {
+          return '<tr><td class="strong">' + escapeHtml(s.source) + '</td><td>' + escapeHtml(s.owner) + '</td><td><span class="badge ' + badgeTone(s.status) + '">' + escapeHtml(s.status) + '</span></td><td>' + escapeHtml(s.freshness) + '</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:96px;"><div class="progress-fill" style="width:' + s.coverage + '%;background:' + C.red + ';"></div></div><span class="strong">' + s.coverage + '%</span></div></td><td>' + escapeHtml(s.records) + '</td><td class="amber-text">' + escapeHtml(s.gap) + '</td></tr>';
+        }).join('') + '</tbody></table></div></section>',
+        '<div class="card-grid-3" style="margin-top:14px;">',
+        steps.map(function (step) {
+          return '<article class="card"><div class="card-body"><span class="kpi-icon tone-red">' + icon(step.icon) + '</span><h3 style="margin-top:16px;font-size:18px;font-weight:900;letter-spacing:-0.03em;">' + escapeHtml(step.title) + '</h3><p class="helper-text" style="line-height:1.6;">' + escapeHtml(step.detail) + '</p></div></article>';
+        }).join(''),
+        '</div>'
+      ].join('');
+    }
+
+    function filteredUseCases() {
+      return useCases.filter(function (item) {
+        const teamOk = state.team === "All teams" || item.team === state.team;
+        const searchOk = !state.search || [item.name, item.product, item.team, item.tool].join(' ').toLowerCase().indexOf(state.search.toLowerCase()) > -1;
+        const platformOk = state.platform === "All platforms" || item.tool.indexOf(state.platform) > -1 || item.tool === state.platform;
+        return teamOk && searchOk && platformOk;
+      });
+    }
+
+    function filteredTeams() {
+      return teams.filter(function (team) {
+        return state.team === "All teams" || team.name === state.team;
+      });
+    }
+
+    function filteredTools() {
+      return tools.filter(function (tool) {
+        return state.platform === "All platforms" || tool.platform === state.platform || tool.name.indexOf(state.platform) > -1;
+      });
+    }
+
+    function emptyStateMarkup() {
+      return '<div class="outline-note"><span class="kpi-icon tone-amber">' + icon('alert') + '</span><div><div class="strong">No matching records</div><div class="alert-copy">Adjust the current filters or clear the search term to see data again.</div></div></div>';
+    }
+
+    function renderTabContent() {
+      const host = document.getElementById('dashboard-content');
+      let html = '';
+      if (!filteredUseCases().length && (state.tab === "Executive Overview" || state.tab === "Cost & Value" || state.tab === "Adoption & Usage")) {
+        html = emptyStateMarkup();
+      } else if (!filteredTools().length && (state.tab === "Performance" || state.tab === "Sustainability")) {
+        html = emptyStateMarkup();
+      } else {
+        if (state.tab === "Executive Overview") html = executiveMarkup();
+        else if (state.tab === "Cost & Value") html = costValueMarkup();
+        else if (state.tab === "Adoption & Usage") html = adoptionMarkup();
+        else if (state.tab === "Performance") html = performanceMarkup();
+        else if (state.tab === "Sustainability") html = sustainabilityMarkup();
+        else html = coverageMarkup();
+      }
+      host.innerHTML = html;
+      document.getElementById('section-title').textContent = state.tab;
+      updatePlatformLegend();
+      renderCharts();
+    }
+
+    function populateSelect(selectId, values, current) {
+      const select = document.getElementById(selectId);
+      select.innerHTML = values.map(function (value) {
+        return '<option' + (value === current ? ' selected' : '') + '>' + escapeHtml(value) + '</option>';
+      }).join('');
+    }
+
+    function renderTabs() {
+      const nav = document.getElementById('tab-nav');
+      nav.innerHTML = tabs.map(function (tab) {
+        const active = tab.name === state.tab ? ' active' : '';
+        return '<button class="tab-btn' + active + '" type="button" data-tab="' + escapeHtml(tab.name) + '">' + icon(tab.icon) + '<span>' + escapeHtml(tab.name) + '</span></button>';
+      }).join('');
+    }
+
+    function updatePlatformLegend() {
+      const legend = document.getElementById('platform-spend-legend');
+      if (!legend) return;
+      legend.innerHTML = filteredTools().map(function (item) {
+        return '<div class="legend-item"><div class="legend-line"><span class="legend-dot" style="background:' + item.color + ';"></span>' + escapeHtml(item.platform) + '</div><div class="legend-value">' + fmtMoney(item.spend) + '</div></div>';
+      }).join('');
+    }
+
+    function destroyCharts() {
+      while (chartRegistry.length) {
+        const chart = chartRegistry.pop();
+        chart.destroy();
+      }
+    }
+
+    function chartDefaults() {
+      const computed = getComputedStyle(document.documentElement);
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return {
+        text: computed.getPropertyValue('--muted').trim() || (isDark ? '#9ca3af' : '#6b7280'),
+        line: computed.getPropertyValue('--line').trim() || (isDark ? '#2a2f3a' : '#e5e7eb'),
+        ink: computed.getPropertyValue('--ink').trim() || (isDark ? '#f9fafb' : '#111827')
+      };
+    }
+
+    function createChart(id, config) {
+      const canvas = document.getElementById(id);
+      if (!canvas) return;
+      const palette = chartDefaults();
+      config.options = config.options || {};
+      config.options.responsive = true;
+      config.options.maintainAspectRatio = false;
+      config.options.plugins = config.options.plugins || {};
+      config.options.plugins.legend = Object.assign({ labels: { color: palette.text, usePointStyle: true, boxWidth: 8, boxHeight: 8, font: { size: 10, weight: '700' } } }, config.options.plugins.legend || {});
+      config.options.plugins.tooltip = Object.assign({
+        backgroundColor: '#ffffff',
+        titleColor: '#111827',
+        bodyColor: '#374151',
+        borderColor: palette.line,
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 12,
+        displayColors: true
+      }, config.options.plugins.tooltip || {});
+      config.options.scales = config.options.scales || {};
+      Object.keys(config.options.scales).forEach(function (key) {
+        const scale = config.options.scales[key];
+        scale.grid = Object.assign({ color: palette.line, drawBorder: false }, scale.grid || {});
+        scale.ticks = Object.assign({ color: palette.text, font: { size: 10 } }, scale.ticks || {});
+        scale.border = Object.assign({ display: false }, scale.border || {});
+      });
+      const chart = new Chart(canvas, config);
+      chartRegistry.push(chart);
+    }
+
+    function renderCharts() {
+      destroyCharts();
+      const platformData = filteredTools();
+      const cases = filteredUseCases();
+      const teamData = filteredTeams();
+      if (document.getElementById('executive-composed')) {
+        createChart('executive-composed', {
+          type: 'bar',
+          data: {
+            labels: baseMonthly.map(function (d) { return d.month; }),
+            datasets: [
+              { type: 'bar', label: 'Actual spend', data: baseMonthly.map(function (d) { return d.spend; }), backgroundColor: C.red, borderRadius: 6 },
+              { type: 'line', label: 'Budget', data: baseMonthly.map(function (d) { return d.budget; }), borderColor: C.dark, pointRadius: 0, tension: 0.35, borderWidth: 2 },
+              { type: 'line', label: 'Forecast', data: baseMonthly.map(function (d) { return d.forecast; }), borderColor: C.amber, pointRadius: 0, tension: 0.35, borderWidth: 2, borderDash: [6, 4] }
+            ]
+          },
+          options: {
+            scales: { x: {}, y: { beginAtZero: false } }
+          }
+        });
+      }
+      if (document.getElementById('platform-spend-pie')) {
+        createChart('platform-spend-pie', {
+          type: 'doughnut',
+          data: {
+            labels: platformData.map(function (d) { return d.platform; }),
+            datasets: [{ data: platformData.map(function (d) { return d.spend; }), backgroundColor: platformData.map(function (d) { return d.color; }), borderWidth: 0, hoverOffset: 4 }]
+          },
+          options: {
+            cutout: '62%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+      if (document.getElementById('team-budget-chart')) {
+        createChart('team-budget-chart', {
+          type: 'bar',
+          data: {
+            labels: teamData.map(function (d) { return d.name; }),
+            datasets: [
+              { label: 'Actual', data: teamData.map(function (d) { return d.spend; }), backgroundColor: C.red, borderRadius: 6 },
+              { label: 'Budget', data: teamData.map(function (d) { return d.budget; }), backgroundColor: '#d1d5db', borderRadius: 6 }
+            ]
+          },
+          options: { indexAxis: 'y', scales: { x: { beginAtZero: true }, y: {} } }
+        });
+      }
+      if (document.getElementById('usecase-value-chart')) {
+        createChart('usecase-value-chart', {
+          type: 'bar',
+          data: {
+            labels: cases.map(function (d) { return '#' + d.rank; }),
+            datasets: [
+              { label: 'Cost', data: cases.map(function (d) { return d.spend; }), backgroundColor: C.red, borderRadius: 6 },
+              { label: 'Estimated value', data: cases.map(function (d) { return d.value; }), backgroundColor: C.green, borderRadius: 6 }
+            ]
+          },
+          options: { scales: { x: {}, y: { beginAtZero: true } } }
+        });
+      }
+      if (document.getElementById('adoption-usage-chart')) {
+        createChart('adoption-usage-chart', {
+          data: {
+            labels: baseMonthly.map(function (d) { return d.month; }),
+            datasets: [
+              { type: 'bar', label: 'Requests (M)', data: baseMonthly.map(function (d) { return d.requests; }), backgroundColor: C.red, borderRadius: 6, yAxisID: 'y' },
+              { type: 'line', label: 'Active users', data: baseMonthly.map(function (d) { return d.users; }), borderColor: C.blue, backgroundColor: C.blue, borderWidth: 3, pointRadius: 0, tension: 0.35, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            scales: {
+              x: {},
+              y: { beginAtZero: false },
+              y1: { position: 'right', grid: { display: false } }
+            }
+          }
+        });
+      }
+      if (document.getElementById('performance-latency-chart')) {
+        createChart('performance-latency-chart', {
+          type: 'bar',
+          data: {
+            labels: platformData.map(function (d) { return d.platform; }),
+            datasets: [
+              { label: 'Average', data: platformData.map(function (d) { return d.latency; }), backgroundColor: C.blue, borderRadius: 6 },
+              { label: 'P95', data: platformData.map(function (d) { return Math.round(d.latency * 1.8); }), backgroundColor: C.red, borderRadius: 6 }
+            ]
+          },
+          options: { scales: { x: {}, y: { beginAtZero: true } } }
+        });
+      }
+      if (document.getElementById('sustainability-chart')) {
+        const emission = baseMonthly.map(function (x) {
+          return Object.assign({}, x, { intensity: Number(((x.co2 * 1000) / (x.requests * 1000000) * 1000).toFixed(2)) });
+        });
+        createChart('sustainability-chart', {
+          data: {
+            labels: emission.map(function (d) { return d.month; }),
+            datasets: [
+              { type: 'bar', label: 'CO2e (t)', data: emission.map(function (d) { return d.co2; }), backgroundColor: C.green, borderRadius: 6, yAxisID: 'y' },
+              { type: 'line', label: 'Intensity (mg/request)', data: emission.map(function (d) { return d.intensity; }), borderColor: C.red, pointRadius: 0, borderWidth: 3, tension: 0.35, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            scales: {
+              x: {},
+              y: { beginAtZero: false },
+              y1: { position: 'right', grid: { display: false } }
+            }
+          }
+        });
+      }
+    }
+
+    function syncControls() {
+      document.getElementById('updated-label').textContent = state.updated;
+      document.getElementById('filter-bar').hidden = !state.filtersVisible;
+      document.getElementById('toggle-filters-label').textContent = state.filtersVisible ? 'Hide filters' : 'Show filters';
+      populateSelect('period-filter', ['FY26 YTD', 'Last 12 months', 'Current quarter', 'Current month'], state.period);
+      populateSelect('platform-filter', ['All platforms', 'Copilot', 'Snowflake', 'Kong', 'Azure AI'], state.platform);
+      populateSelect('team-filter', ['All teams'].concat(teams.map(function (x) { return x.name; })), state.team);
+      populateSelect('env-filter', ['All environments', 'Production', 'Test', 'Development'], state.env);
+      document.getElementById('search-filter').value = state.search;
+      renderTabs();
+      renderTabContent();
+    }
+
+    function resetFilters() {
+      state.period = 'FY26 YTD';
+      state.platform = 'All platforms';
+      state.team = 'All teams';
+      state.env = 'All environments';
+      state.search = '';
+      syncControls();
+    }
+
+    function bindEvents() {
+      document.querySelectorAll('[data-icon]').forEach(function (node) {
+        node.innerHTML = iconPaths[node.getAttribute('data-icon')] || '';
+      });
+
+      document.getElementById('tab-nav').addEventListener('click', function (event) {
+        const button = event.target.closest('[data-tab]');
+        if (!button) return;
+        state.tab = button.getAttribute('data-tab');
+        syncControls();
+      });
+
+      document.getElementById('toggle-filters').addEventListener('click', function () {
+        state.filtersVisible = !state.filtersVisible;
+        syncControls();
+      });
+
+      document.getElementById('refresh-button').addEventListener('click', function () {
+        state.updated = 'Just now';
+        syncControls();
+      });
+
+      document.getElementById('export-button').addEventListener('click', function () {
+        window.alert('Mock export prepared. In production, connect this action to Power BI export or CSV download.');
+      });
+
+      document.getElementById('reset-filters').addEventListener('click', resetFilters);
+
+      document.getElementById('period-filter').addEventListener('change', function (event) {
+        state.period = event.target.value;
+      });
+      document.getElementById('platform-filter').addEventListener('change', function (event) {
+        state.platform = event.target.value;
+        syncControls();
+      });
+      document.getElementById('team-filter').addEventListener('change', function (event) {
+        state.team = event.target.value;
+        syncControls();
+      });
+      document.getElementById('env-filter').addEventListener('change', function (event) {
+        state.env = event.target.value;
+      });
+      document.getElementById('search-filter').addEventListener('input', function (event) {
+        state.search = event.target.value;
+        syncControls();
+      });
+
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+        renderCharts();
+      });
+    }
+
+    bindEvents();
+    syncControls();
+  </script>
+</body>
+</html>
