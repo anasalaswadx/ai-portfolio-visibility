@@ -820,6 +820,10 @@
           <select id="platform-filter"></select>
         </div>
         <div class="field">
+          <label for="tool-filter">AI tool / solution</label>
+          <select id="tool-filter"></select>
+        </div>
+        <div class="field">
           <label for="team-filter">Team / Squad</label>
           <select id="team-filter"></select>
         </div>
@@ -885,20 +889,24 @@
     ];
 
     const useCases = [
-      { rank: 1, name: "Engineering Assistant", product: "Dev Productivity", team: "Digital Engineering", tool: "Microsoft 365 Copilot", spend: 318, users: 810, requests: 14.1, co2: 7.8, value: 525, time: 8200 },
-      { rank: 2, name: "Customer Insight Summarization", product: "Customer 360", team: "Customer & Retail", tool: "Snowflake AI & ML", spend: 274, users: 285, requests: 9.8, co2: 8.4, value: 438, time: 4100 },
-      { rank: 3, name: "Meeting & Email Productivity", product: "M365 Copilot", team: "Corporate Functions", tool: "Microsoft 365 Copilot", spend: 247, users: 1320, requests: 12.7, co2: 5.2, value: 396, time: 12700 },
-      { rank: 4, name: "Quality Knowledge Assistant", product: "Quality AI", team: "Manufacturing", tool: "Kong LLM Gateway", spend: 226, users: 390, requests: 8.9, co2: 6.6, value: 341, time: 3800 },
-      { rank: 5, name: "Warranty Claim Classification", product: "Warranty Analytics", team: "After Sales", tool: "Snowflake AI & ML", spend: 207, users: 170, requests: 7.4, co2: 7.1, value: 362, time: 2950 },
-      { rank: 6, name: "Data Product Documentation", product: "Data Marketplace", team: "Data & AI", tool: "Azure OpenAI", spend: 183, users: 260, requests: 6.2, co2: 4.1, value: 304, time: 3300 }
+      { rank: 1, name: "Engineering Assistant", product: "Dev Productivity", team: "IT & Digital", tool: "Microsoft 365 Copilot", spend: 318, users: 810, requests: 14.1, co2: 7.8, value: 525, time: 8200 },
+      { rank: 2, name: "Customer Insight Summarization", product: "Customer 360", team: "Sales & Marketing", tool: "Snowflake AI & ML", spend: 274, users: 285, requests: 9.8, co2: 8.4, value: 438, time: 4100 },
+      { rank: 3, name: "Meeting & Email Productivity", product: "M365 Copilot", team: "Finance", tool: "Microsoft 365 Copilot", spend: 247, users: 1320, requests: 12.7, co2: 5.2, value: 396, time: 12700 },
+      { rank: 4, name: "Quality Knowledge Assistant", product: "Quality AI", team: "Quality", tool: "Kong LLM Gateway", spend: 226, users: 390, requests: 8.9, co2: 6.6, value: 341, time: 3800 },
+      { rank: 5, name: "Warranty Claim Classification", product: "Warranty Analytics", team: "Supply Chain", tool: "Snowflake AI & ML", spend: 207, users: 170, requests: 7.4, co2: 7.1, value: 362, time: 2950 },
+      { rank: 6, name: "Data Product Documentation", product: "Data Marketplace", team: "Data & AI", tool: "Azure OpenAI", spend: 183, users: 260, requests: 6.2, co2: 4.1, value: 304, time: 3300 },
+      { rank: 7, name: "R&D Design Optimization Assistant", product: "Engineering Simulation", team: "R&D", tool: "Snowflake AI & ML", spend: 165, users: 140, requests: 5.1, co2: 5.8, value: 250, time: 2100 },
+      { rank: 8, name: "Production Line Anomaly Detection", product: "Manufacturing AI", team: "Manufacturing", tool: "Kong LLM Gateway", spend: 150, users: 110, requests: 4.4, co2: 5.0, value: 210, time: 1800 }
     ];
 
     const teams = [
-      { name: "Digital Engineering", spend: 464, users: 1105, adoption: 73, co2: 11.8, budget: 450 },
-      { name: "Customer & Retail", spend: 382, users: 710, adoption: 62, co2: 10.4, budget: 390 },
-      { name: "Manufacturing", spend: 351, users: 645, adoption: 57, co2: 12.1, budget: 330 },
-      { name: "Corporate Functions", spend: 319, users: 1510, adoption: 71, co2: 8.2, budget: 350 },
-      { name: "After Sales", spend: 267, users: 490, adoption: 49, co2: 9.0, budget: 280 },
+      { name: "Quality", spend: 226, users: 390, adoption: 57, co2: 6.6, budget: 240 },
+      { name: "Supply Chain", spend: 207, users: 170, adoption: 49, co2: 7.1, budget: 220 },
+      { name: "Finance", spend: 247, users: 610, adoption: 71, co2: 5.2, budget: 260 },
+      { name: "R&D", spend: 165, users: 140, adoption: 44, co2: 5.8, budget: 190 },
+      { name: "Manufacturing", spend: 351, users: 645, adoption: 55, co2: 12.1, budget: 330 },
+      { name: "Sales & Marketing", spend: 382, users: 710, adoption: 62, co2: 10.4, budget: 390 },
+      { name: "IT & Digital", spend: 464, users: 1105, adoption: 73, co2: 11.8, budget: 450 },
       { name: "Data & AI", spend: 182, users: 635, adoption: 78, co2: 7.5, budget: 180 }
     ];
 
@@ -909,10 +917,53 @@
       { source: "Finance / Cost Centers", owner: "Finance D&A", status: "Connected", freshness: "1d ago", coverage: 98, records: "4.6K", gap: "Monthly allocation" }
     ];
 
+    const SHADOW_EST = {
+      promptsPerGB: 3200,
+      tokensPerGB: 760000,
+      avgTokensPerExchange: 235,
+      methodology: "Estimated from sampled proxy sessions: an average compressed prompt/response exchange across common consumer chatbots is roughly 310 KB."
+    };
+
+    const shadowMonthly = [
+      { month: "Sep", approvedGB: 210, shadowGB: 96 },
+      { month: "Oct", approvedGB: 224, shadowGB: 101 },
+      { month: "Nov", approvedGB: 238, shadowGB: 108 },
+      { month: "Dec", approvedGB: 219, shadowGB: 112 },
+      { month: "Jan", approvedGB: 251, shadowGB: 121 },
+      { month: "Feb", approvedGB: 268, shadowGB: 129 },
+      { month: "Mar", approvedGB: 284, shadowGB: 138 },
+      { month: "Apr", approvedGB: 298, shadowGB: 146 },
+      { month: "May", approvedGB: 312, shadowGB: 152 },
+      { month: "Jun", approvedGB: 329, shadowGB: 161 },
+      { month: "Jul", approvedGB: 345, shadowGB: 170 },
+      { month: "Aug", approvedGB: 362, shadowGB: 179 }
+    ];
+
+    const shadowTools = [
+      { name: "ChatGPT (chat.openai.com)", vendor: "OpenAI", detection: "Proxy domain + DNS", trafficGB: 780, users: 1840, risk: "High", trend: "+18%" },
+      { name: "Gemini (gemini.google.com)", vendor: "Google", detection: "Proxy domain", trafficGB: 390, users: 860, risk: "High", trend: "+24%" },
+      { name: "Claude.ai", vendor: "Anthropic", detection: "Proxy domain", trafficGB: 140, users: 310, risk: "Medium", trend: "+9%" },
+      { name: "Perplexity AI", vendor: "Perplexity", detection: "Proxy domain", trafficGB: 95, users: 210, risk: "Medium", trend: "+31%" },
+      { name: "DeepSeek", vendor: "DeepSeek", detection: "Proxy domain", trafficGB: 68, users: 165, risk: "High", trend: "+46%" },
+      { name: "Other / unclassified AI domains", vendor: "Mixed", detection: "Proxy category", trafficGB: 140, users: 540, risk: "Medium", trend: "+12%" }
+    ];
+
+    const shadowByTeam = [
+      { name: "Sales & Marketing", shadowGB: 310, share: 34 },
+      { name: "Finance", shadowGB: 260, share: 29 },
+      { name: "IT & Digital", shadowGB: 245, share: 18 },
+      { name: "Quality", shadowGB: 210, share: 26 },
+      { name: "Manufacturing", shadowGB: 195, share: 21 },
+      { name: "R&D", shadowGB: 180, share: 33 },
+      { name: "Supply Chain", shadowGB: 140, share: 24 },
+      { name: "Data & AI", shadowGB: 73, share: 9 }
+    ];
+
     const tabs = [
       { name: "Executive Overview", icon: "barChart" },
       { name: "Cost & Value", icon: "dollar" },
       { name: "Adoption & Usage", icon: "users" },
+      { name: "Shadow AI", icon: "eyeOff" },
       { name: "Performance", icon: "gauge" },
       { name: "Sustainability", icon: "leaf" },
       { name: "Data Coverage", icon: "database" }
@@ -938,13 +989,15 @@
       cloud: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19a4.5 4.5 0 1 0-.9-8.91A6 6 0 1 0 6 17h11.5Z"/><path d="M12 12v6"/><path d="m9.5 15 2.5 3 2.5-3"/></svg>',
       settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>',
       server: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><path d="M7 7h.01"/><path d="M7 17h.01"/></svg>',
-      bot: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4"/><path d="M9 2h6"/><path d="M8 12h.01"/><path d="M16 12h.01"/><path d="M9 16h6"/></svg>'
+      bot: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4"/><path d="M9 2h6"/><path d="M8 12h.01"/><path d="M16 12h.01"/><path d="M9 16h6"/></svg>',
+      eyeOff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="m2 2 20 20"/></svg>'
     };
 
     const state = {
       tab: "Executive Overview",
       period: "FY26 YTD",
       platform: "All platforms",
+      aiTool: "All tools",
       team: "All teams",
       env: "All environments",
       filtersVisible: true,
@@ -1036,6 +1089,7 @@
       const alerts = [
         { title: "Forecast above budget", detail: "FY26 forecast is EUR 171K above approved budget.", tone: "red", icon: "alert" },
         { title: "Manufacturing overspend", detail: "EUR 21K above team budget, driven by Quality AI.", tone: "amber", icon: "trendUp" },
+        { title: "Shadow AI traffic rising", detail: "Unapproved chatbots now account for ~33% of AI network traffic. See Shadow AI tab.", tone: "red", icon: "eyeOff" },
         { title: "Kong data coverage", detail: "61% coverage until remaining tools migrate.", tone: "purple", icon: "cloud" },
         { title: "Copilot adoption", detail: "32% of licensed users inactive this month.", tone: "blue", icon: "users" }
       ];
@@ -1191,6 +1245,52 @@
       ].join('');
     }
 
+    function shadowAiMarkup() {
+      const totalShadowGB = shadowMonthly.reduce(function (sum, d) { return sum + d.shadowGB; }, 0);
+      const totalApprovedGB = shadowMonthly.reduce(function (sum, d) { return sum + d.approvedGB; }, 0);
+      const shadowShare = (totalShadowGB / (totalShadowGB + totalApprovedGB)) * 100;
+      const estPrompts = totalShadowGB * SHADOW_EST.promptsPerGB;
+      const estTokens = totalShadowGB * SHADOW_EST.tokensPerGB;
+      const topTool = shadowTools.slice().sort(function (a, b) { return b.trafficGB - a.trafficGB; })[0];
+      const topTeam = shadowByTeam.slice().sort(function (a, b) { return b.share - a.share; })[0];
+
+      const kpis = [
+        { title: "Shadow AI Traffic", value: (totalShadowGB / 1000).toFixed(2) + " TB", detail: shadowShare.toFixed(1) + "% of total AI network traffic", trend: "+15.4%", icon: "eyeOff", tone: "red" },
+        { title: "Estimated Shadow Prompts", value: (estPrompts / 1e6).toFixed(2) + "M", detail: "Modeled from proxy traffic volume", trend: "+15.4%", icon: "activity", tone: "amber" },
+        { title: "Estimated Shadow Tokens", value: (estTokens / 1e9).toFixed(2) + "B", detail: "~" + SHADOW_EST.avgTokensPerExchange + " tokens per exchange (avg)", icon: "bot", tone: "purple" },
+        { title: "Approved vs Shadow Mix", value: Math.round((totalApprovedGB / (totalApprovedGB + totalShadowGB)) * 100) + " / " + Math.round(shadowShare), detail: "Approved / Shadow share of AI traffic", trend: "-2.1pp", icon: "gauge", tone: "blue" },
+        { title: "Top Shadow Tool", value: topTool.name.split(" (")[0], detail: topTool.trafficGB + " GB detected, " + topTool.users.toLocaleString() + " laptops", tone: "red", icon: "alert" },
+        { title: "Most Exposed Team", value: topTeam.name, detail: topTeam.share + "% of team AI traffic is Shadow", tone: "amber", icon: "users" }
+      ];
+
+      const toolRows = filteredShadowTools().map(function (t) {
+        const prompts = t.trafficGB * SHADOW_EST.promptsPerGB;
+        const tokens = t.trafficGB * SHADOW_EST.tokensPerGB;
+        const riskBadge = t.risk === "High" ? "red" : (t.risk === "Medium" ? "amber" : "green");
+        return '<tr><td class="strong">' + escapeHtml(t.name) + '</td><td class="muted">' + escapeHtml(t.vendor) + '</td><td class="muted">' + escapeHtml(t.detection) + '</td><td>' + t.users.toLocaleString() + '</td><td class="strong">' + t.trafficGB + ' GB</td><td>' + (prompts / 1e6).toFixed(2) + 'M</td><td>' + (tokens / 1e6).toFixed(0) + 'M</td><td><span class="badge ' + riskBadge + '">' + escapeHtml(t.risk) + '</span></td><td class="red-text strong">' + escapeHtml(t.trend) + '</td></tr>';
+      }).join('');
+
+      const teamRows = filteredShadowByTeam().map(function (t) {
+        const tone = t.share >= 30 ? C.red : (t.share >= 20 ? C.amber : C.green);
+        return '<div class="progress-item"><div class="progress-head"><span class="strong">' + escapeHtml(t.name) + '</span><span class="strong">' + t.share + '%</span></div><div class="progress-bar"><div class="progress-fill" style="width:' + t.share + '%;background:' + tone + ';"></div></div></div>';
+      }).join('');
+
+      return [
+        '<div class="card-grid-6">',
+        kpis.map(kpiCard).join(''),
+        '</div>',
+        '<div class="card-grid-12" style="margin-top:14px;">',
+        chartCard("Approved vs Shadow AI Traffic", "Monthly network traffic in GB, with Shadow share overlay", "shadow-trend-chart", "", "span-8", "Proxy + endpoint telemetry"),
+        '<section class="card span-4">' + cardTitle("Shadow AI Exposure by Team / Squad", "Share of department AI traffic outside approved tools") + '<div class="progress-list">' + teamRows + '</div></section>',
+        '</div>',
+        '<section class="card" style="margin-top:14px;">' + cardTitle("Detected Unapproved AI Tools", "Sourced from web proxy logs and company laptop endpoint agent") + '<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Vendor</th><th>Detection</th><th>Users / devices</th><th>Traffic</th><th>Est. prompts</th><th>Est. tokens</th><th>Risk</th><th>Trend</th></tr></thead><tbody>' + (toolRows || '') + '</tbody></table></div></section>',
+        '<div class="outline-note" style="margin-top:14px;">',
+        '<span class="kpi-icon tone-amber">' + icon("alert") + '</span>',
+        '<div><div class="strong">Estimation methodology</div><div class="alert-copy">' + escapeHtml(SHADOW_EST.methodology) + ' Conversion assumes ~' + SHADOW_EST.promptsPerGB.toLocaleString() + ' prompts and ~' + (SHADOW_EST.tokensPerGB / 1e6).toFixed(2) + 'M tokens per GB of chatbot traffic. Recalibrate with a sampled packet capture before using for governance decisions.</div></div>',
+        '</div>'
+      ].join('');
+    }
+
     function coverageMarkup() {
       const kpis = [
         { title: "Source Coverage", value: "86.8%", detail: "Weighted field completion", trend: "+9.2pp", icon: "database", tone: "blue" },
@@ -1223,7 +1323,8 @@
         const teamOk = state.team === "All teams" || item.team === state.team;
         const searchOk = !state.search || [item.name, item.product, item.team, item.tool].join(' ').toLowerCase().indexOf(state.search.toLowerCase()) > -1;
         const platformOk = state.platform === "All platforms" || item.tool.indexOf(state.platform) > -1 || item.tool === state.platform;
-        return teamOk && searchOk && platformOk;
+        const toolOk = state.aiTool === "All tools" || item.tool === state.aiTool;
+        return teamOk && searchOk && platformOk && toolOk;
       });
     }
 
@@ -1235,7 +1336,21 @@
 
     function filteredTools() {
       return tools.filter(function (tool) {
-        return state.platform === "All platforms" || tool.platform === state.platform || tool.name.indexOf(state.platform) > -1;
+        const platformOk = state.platform === "All platforms" || tool.platform === state.platform || tool.name.indexOf(state.platform) > -1;
+        const toolOk = state.aiTool === "All tools" || tool.name === state.aiTool;
+        return platformOk && toolOk;
+      });
+    }
+
+    function filteredShadowTools() {
+      return shadowTools.filter(function (tool) {
+        return state.aiTool === "All tools" || tool.name === state.aiTool;
+      });
+    }
+
+    function filteredShadowByTeam() {
+      return shadowByTeam.filter(function (team) {
+        return state.team === "All teams" || team.name === state.team;
       });
     }
 
@@ -1250,10 +1365,13 @@
         html = emptyStateMarkup();
       } else if (!filteredTools().length && (state.tab === "Performance" || state.tab === "Sustainability")) {
         html = emptyStateMarkup();
+      } else if (!filteredShadowTools().length && state.tab === "Shadow AI") {
+        html = emptyStateMarkup();
       } else {
         if (state.tab === "Executive Overview") html = executiveMarkup();
         else if (state.tab === "Cost & Value") html = costValueMarkup();
         else if (state.tab === "Adoption & Usage") html = adoptionMarkup();
+        else if (state.tab === "Shadow AI") html = shadowAiMarkup();
         else if (state.tab === "Performance") html = performanceMarkup();
         else if (state.tab === "Sustainability") html = sustainabilityMarkup();
         else html = coverageMarkup();
@@ -1446,6 +1564,25 @@
           }
         });
       }
+      if (document.getElementById('shadow-trend-chart')) {
+        createChart('shadow-trend-chart', {
+          data: {
+            labels: shadowMonthly.map(function (d) { return d.month; }),
+            datasets: [
+              { type: 'bar', label: 'Approved AI traffic (GB)', data: shadowMonthly.map(function (d) { return d.approvedGB; }), backgroundColor: C.blue, borderRadius: 6, stack: 'traffic' },
+              { type: 'bar', label: 'Shadow AI traffic (GB)', data: shadowMonthly.map(function (d) { return d.shadowGB; }), backgroundColor: C.red, borderRadius: 6, stack: 'traffic' },
+              { type: 'line', label: 'Shadow share (%)', data: shadowMonthly.map(function (d) { return Number(((d.shadowGB / (d.shadowGB + d.approvedGB)) * 100).toFixed(1)); }), borderColor: C.amber, backgroundColor: C.amber, borderWidth: 3, pointRadius: 0, tension: 0.35, yAxisID: 'y1' }
+            ]
+          },
+          options: {
+            scales: {
+              x: { stacked: true },
+              y: { beginAtZero: true, stacked: true },
+              y1: { position: 'right', grid: { display: false }, beginAtZero: true, max: 60 }
+            }
+          }
+        });
+      }
     }
 
     function syncControls() {
@@ -1454,6 +1591,7 @@
       document.getElementById('toggle-filters-label').textContent = state.filtersVisible ? 'Hide filters' : 'Show filters';
       populateSelect('period-filter', ['FY26 YTD', 'Last 12 months', 'Current quarter', 'Current month'], state.period);
       populateSelect('platform-filter', ['All platforms', 'Copilot', 'Snowflake', 'Kong', 'Azure AI'], state.platform);
+      populateSelect('tool-filter', ['All tools'].concat(tools.map(function (x) { return x.name; })).concat(shadowTools.map(function (x) { return x.name; })), state.aiTool);
       populateSelect('team-filter', ['All teams'].concat(teams.map(function (x) { return x.name; })), state.team);
       populateSelect('env-filter', ['All environments', 'Production', 'Test', 'Development'], state.env);
       document.getElementById('search-filter').value = state.search;
@@ -1464,6 +1602,7 @@
     function resetFilters() {
       state.period = 'FY26 YTD';
       state.platform = 'All platforms';
+      state.aiTool = 'All tools';
       state.team = 'All teams';
       state.env = 'All environments';
       state.search = '';
@@ -1503,6 +1642,10 @@
       });
       document.getElementById('platform-filter').addEventListener('change', function (event) {
         state.platform = event.target.value;
+        syncControls();
+      });
+      document.getElementById('tool-filter').addEventListener('change', function (event) {
+        state.aiTool = event.target.value;
         syncControls();
       });
       document.getElementById('team-filter').addEventListener('change', function (event) {
